@@ -128,8 +128,14 @@ class Solver(object):
         return test_loss, test_correct / total
 
     def save(self):
+        state = {
+            "epoch": self.epochs,
+            "base-model": self.model.state_dict(),
+            "scheduler": self.scheduler.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
+        },
         model_out_path = "model.pth"
-        torch.save(self.model, model_out_path)
+        torch.save(state, model_out_path)
         print("Checkpoint saved to {}".format(model_out_path))
 
     def run(self):
@@ -143,7 +149,7 @@ class Solver(object):
             print(train_result)
             test_result = self.test()
             accuracy = max(accuracy, test_result[1])
-            if epoch == self.epochs:
+            if accuracy == test_result[1]:
                 print("===> BEST ACC. PERFORMANCE: %.3f%%" % (accuracy * 100))
                 self.save()
 
